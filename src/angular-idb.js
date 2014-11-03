@@ -142,13 +142,6 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
       return promise(req);
     };
 
-    idb.get = function (storeName, key) {
-      var session = this.session();
-      return session.open([storeName], 'readonly').then(function () {
-        return session(storeName).get(key);
-      });
-    };
-
     /**
      * IDBObjectStore Wrapper
      */
