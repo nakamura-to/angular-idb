@@ -16,65 +16,83 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
   function createIDB($rootScope, $q, $window) {
     var idbFactory = $window.indexedDB;
 
-    function runDeferred(runner) {
-      runner();
-      if (!$rootScope.$$phase) {
-        $rootScope.$apply();
-      }
-    }
+    var util = {
 
-    function promise(req) {
-      var deferred = $q.defer();
-      req.onsuccess = function (event) {
-        var result = event.target.result;
-        runDeferred(function () {
-          deferred.resolve(result);
-        });
-      };
-      req.onerror = function (event) {
-        runDeferred(function () {
-          deferred.reject(event);
-        });
-      };
-      return deferred.promise;
-    }
+      runDeferred: function (runner) {
+        runner();
+        if (!$rootScope.$$phase) {
+          $rootScope.$apply();
+        }
+      },
 
-    function promiseCursor(req, callback, CursorWrapper) {
-      var deferred = $q.defer();
-      req.onsuccess = function (event) {
-        var next = false;
-        var cursor = event.target.result;
-        if (cursor) {
-          cursor = new CursorWrapper(cursor);
-          var cont = cursor.continue;
-          cursor.continue = function (key) {
-            next = true;
-            cont.call(cursor, key);
-          };
-          var advance = cursor.advance;
-          cursor.advance = function (count) {
-            next = true;
-            advance.call(cursor, count);
-          };
-        } else {
-          runDeferred(function () {
-            deferred.resolve();
+      promise: function (req) {
+        var deferred = $q.defer();
+        req.onsuccess = function (event) {
+          var result = event.target.result;
+          util.runDeferred(function () {
+            deferred.resolve(result);
           });
+        };
+        req.onerror = function (event) {
+          util.runDeferred(function () {
+            deferred.reject(event);
+          });
+        };
+        return deferred.promise;
+      },
+
+      promiseCursor: function (req, callback, CursorWrapper) {
+        var deferred = $q.defer();
+        req.onsuccess = function (event) {
+          var next = false;
+          var cursor = event.target.result;
+          if (cursor) {
+            cursor = new CursorWrapper(cursor);
+            var cont = cursor.continue;
+            cursor.continue = function (key) {
+              next = true;
+              cont.call(cursor, key);
+            };
+            var advance = cursor.advance;
+            cursor.advance = function (count) {
+              next = true;
+              advance.call(cursor, count);
+            };
+          } else {
+            util.runDeferred(function () {
+              deferred.resolve();
+            });
+          }
+          callback(cursor);
+          if (!next) {
+            util.runDeferred(function () {
+              deferred.resolve();
+            });              
+          }
+        };
+        req.onerror = function (event) {
+          util.runDeferred(function () {
+            deferred.reject(event);
+          });
+        };
+        return deferred.promise;
+      },
+
+      openCursor: function (delegate, methodName, range, direction) {
+        var _openCursor = delegate[methodName].bind(delegate);
+        if (range === null || range === undefined) {
+          if (direction === null || direction === undefined) {
+            return _openCursor();
+          }
+          return _openCursor(null, direction);
+        } else {
+          if (direction === null || direction === undefined) {
+            return _openCursor(range);
+          }
+          return _openCursor(range, direction);
         }
-        callback(cursor);
-        if (!next) {
-          runDeferred(function () {
-            deferred.resolve();
-          });              
-        }
-      };
-      req.onerror = function (event) {
-        runDeferred(function () {
-          deferred.reject(event);
-        });
-      };
-      return deferred.promise;
-    }        
+      }
+    };
 
     /**
      * Service
@@ -100,20 +118,20 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
 
         req.onsuccess = function (event) {
           var db = _session.db = event.target.result;
-          var transaction = _session.transaction = db.transaction(storeNames, mode);
+          var transaction = _session.transaction = db.transaction(storeNames, mode || 'readonly');
           _session.stores = storeNames.reduce(function (acc, name) {
             var store = transaction.objectStore(name);
             acc[name] = new ObjectStoreWrapper(store);
             return acc;
           }, {});
           db.close();
-          runDeferred(function () {
+          util.runDeferred(function () {
             deferred.resolve();
           });
         };
 
         req.onerror = function (event) {
-          runDeferred(function () {
+          util.runDeferred(function () {
             deferred.reject(event);
           });
         };
@@ -139,7 +157,7 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
 
     idb.destroy = function () {
       var req = idbFactory.deleteDatabase(defaults.name);
-      return promise(req);
+      return util.promise(req);
     };
 
     /**
@@ -160,36 +178,36 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
       var req = (key === null || key === undefined) ? 
         this.delegate.put(value):
         this.delegate.put(value, key);
-      return promise(req);
+      return util.promise(req);
     };
 
     ObjectStoreWrapper.prototype.add = function(value, key) {
       var req = (key === null || key === undefined) ?
         this.delegate.add(value):
         this.delegate.add(value, key);
-      return promise(req);
+      return util.promise(req);
     };
 
     ObjectStoreWrapper.prototype.delete = function(key) {
       var req = this.delegate.delete(key);
-      return promise(req);
+      return util.promise(req);
     };
 
     ObjectStoreWrapper.prototype.remove = ObjectStoreWrapper.prototype.delete;
 
     ObjectStoreWrapper.prototype.get = function(key) {
       var req = this.delegate.get(key);
-      return promise(req);
+      return util.promise(req);
     };
 
     ObjectStoreWrapper.prototype.clear = function () {
       var req = this.delegate.clear();
-      return promise(req);
+      return util.promise(req);
     };
 
     ObjectStoreWrapper.prototype.openCursor = function (callback, range, direction) {
-      var req = this.delegate.openCursor(range, direction);
-      return promiseCursor(req, callback, CursorWithValueWrapper);
+      var req = util.openCursor(this.delegate, 'openCursor', range, direction);
+      return util.promiseCursor(req, callback, CursorWithValueWrapper);
     };
 
     ObjectStoreWrapper.prototype.createIndex = function (name, keyPath, optionalParameters) {
@@ -207,8 +225,10 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
     };
 
     ObjectStoreWrapper.prototype.count = function (key) {
-      var req = this.delegate.count(key);
-      return promise(req);
+      var req = (key === null || key === undefined) ?
+        this.delegate.count():
+        this.delegate.count(key);
+      return util.promise(req);
     };
 
     ObjectStoreWrapper.prototype.all = function () {
@@ -335,28 +355,30 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
     }
 
     IndexWrapper.prototype.openCursor = function (callback, range, direction) {
-      var req = this.delegate.openCursor(range, direction);
-      return promiseCursor(req, callback, CursorWithValueWrapper);
+      var req = util.openCursor(this.delegate, 'openCursor', range, direction);
+      return util.promiseCursor(req, callback, CursorWithValueWrapper);
     };
 
     IndexWrapper.prototype.openKeyCursor = function (callback, range, direction) {
-      var req = this.delegate.openKeyCursor(range, direction);
-      return promiseCursor(req, callback, CursorWrapper);
+      var req = util.openCursor(this.delegate, 'openKeyCursor', range, direction);
+      return util.promiseCursor(req, callback, CursorWrapper);
     };
 
     IndexWrapper.prototype.get = function(key) {
       var req = this.delegate.get(key);
-      return promise(req);
+      return util.promise(req);
     };
 
     IndexWrapper.prototype.getKey = function(key) {
       var req = this.delegate.getKey(key);
-      return promise(req);
+      return util.promise(req);
     };
 
     IndexWrapper.prototype.count = function(key) {
-      var req = this.delegate.count(key);
-      return promise(req);
+      var req = (key === null || key === undefined) ?
+        this.delegate.count():
+        this.delegate.count(key);
+      return util.promise(req);
     };
 
     /**
@@ -374,7 +396,7 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
 
     CursorWrapper.prototype.update = function(value) {
       var req = this.delegate.update(value);
-      return promise(req);
+      return util.promise(req);
     };
 
     CursorWrapper.prototype.advance = function (count) {
@@ -382,12 +404,16 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
     };
 
     CursorWrapper.prototype.continue = function (key) {
-      this.delegate.continue(key);
+      if (key === null || key === undefined) {
+        this.delegate.continue();
+      } else {
+        this.delegate.continue(key);
+      }
     };
 
     CursorWrapper.prototype.delete = function() {
       var req = this.delegate.delete();
-      return promise(req);
+      return util.promise(req);
     };
 
     CursorWrapper.prototype.remove = CursorWrapper.prototype.delete;

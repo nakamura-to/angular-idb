@@ -7,6 +7,7 @@ Supported browsers are followings:
 
 - Chrome
 - Firefox
+- IE 11
 
 ```js
 angular.module('app', ['nakamura-to.angular-idb'])
