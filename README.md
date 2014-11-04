@@ -5,9 +5,9 @@ IndexedDB wrapper integrated with AngularJS.
 
 Supported browsers are followings:
 
-- Chrome
-- Firefox
-- IE 11
+- Chrome 38 or avobe versions
+- Firefox 33 or avobe versions
+- IE 11 or avobe versions
 
 ```js
 angular.module('app', ['nakamura-to.angular-idb'])
