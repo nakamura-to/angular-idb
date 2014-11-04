@@ -12,9 +12,10 @@ Supported browsers are followings:
 ```js
 angular.module('app', ['nakamura-to.angular-idb'])
 
-  .provider(function ($idbProvider) {
-    $idbProvider.defaults = {
-      onUpgradeNeeded = function (session) {
+  .config(function ($idbProvider) {
+    angular.extend($idbProvider.defaults, {
+      version: 1,
+      onUpgradeNeeded: function (session) {
         var product = session.createObjectStore(
           'product', {
             keyPath: 'id',
@@ -24,7 +25,7 @@ angular.module('app', ['nakamura-to.angular-idb'])
         product.add({ name: 'Ruby' });
         product.add({ name: 'Java' });
       }
-    };
+    });
   })
 
   .factory('productStorage', function ($idb) {
@@ -44,7 +45,7 @@ angular.module('app', ['nakamura-to.angular-idb'])
   .controller('MainCtrl', function ($scope, productStorage) {
     $scope.click = function (id) {
       productStrage.get(id).then(function (product) {
-        $scope.clickedProduct = product;
+        $scope.product = product;
       });
     };
   });  
