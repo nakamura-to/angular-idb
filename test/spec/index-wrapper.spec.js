@@ -16,17 +16,14 @@ describe('IndexWrapper', function () {
         person.add({ name: 'eee', age: 20 });
         person.add({ name: 'ccc', age: 30 });
         person.add({ name: 'fff', age: 30 });
-      }      
+      },
+      initializeDatabase: true     
     });
   }));
 
   beforeEach(inject(function (_$idb_) {
     $idb = _$idb_;
   }));
-
-  beforeEach(function (done) {
-    $idb.destroy().then(done);
-  });
 
   it('should support "openCursor"', function (done) {
     var session = $idb.session();

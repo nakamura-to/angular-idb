@@ -7,10 +7,21 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
     version: 1,
     /*jshint unused:false*/
     onUpgradeNeeded: function(session) {},
+    initializeDatabase: false
   };
 
+  var destroyPromise;
+
   this.$get = function($rootScope, $q, $window) {
-    return createIDB($rootScope, $q, $window);
+    var $idb = createIDB($rootScope, $q, $window);
+
+    if (defaults.initializeDatabase) {
+      destroyPromise = $idb.destroy();
+    } else {
+      destroyPromise = $q.when();
+    }
+
+    return $idb;
   };
 
   function createIDB($rootScope, $q, $window) {
@@ -107,40 +118,43 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
       };
 
       _session.open = function(storeNames, mode) {
-        var deferred = $q.defer();
-        var req = idbFactory.open(defaults.name, defaults.version);
+        function _open() {
+          var deferred = $q.defer();
+          var req = idbFactory.open(defaults.name, defaults.version);
 
-        req.onupgradeneeded = function (event) {
-          _session.db = event.target.result;
-          _session.transaction = event.target.transaction;
-          defaults.onUpgradeNeeded(_session);
-        };
+          req.onupgradeneeded = function (event) {
+            _session.db = event.target.result;
+            _session.transaction = event.target.transaction;
+            defaults.onUpgradeNeeded(_session);
+          };
 
-        req.onsuccess = function (event) {
-          var db = _session.db = event.target.result;
-          var transaction = _session.transaction = db.transaction(storeNames, mode || 'readonly');
-          _session.stores = storeNames.reduce(function (acc, name) {
-            var store = transaction.objectStore(name);
-            acc[name] = new ObjectStoreWrapper(store);
-            return acc;
-          }, {});
-          db.close();
-          util.runDeferred(function () {
-            deferred.resolve();
-          });
-        };
+          req.onsuccess = function (event) {
+            var db = _session.db = event.target.result;
+            var transaction = _session.transaction = db.transaction(storeNames, mode || 'readonly');
+            _session.stores = storeNames.reduce(function (acc, name) {
+              var store = transaction.objectStore(name);
+              acc[name] = new ObjectStoreWrapper(store);
+              return acc;
+            }, {});
+            db.close();
+            util.runDeferred(function () {
+              deferred.resolve();
+            });
+          };
 
-        req.onerror = function (event) {
-          util.runDeferred(function () {
-            deferred.reject(event);
-          });
-        };
+          req.onerror = function (event) {
+            util.runDeferred(function () {
+              deferred.reject(event);
+            });
+          };
 
-        req.onblocked = function(event) {
-          deferred.reject(event);      
-        };
+          req.onblocked = function(event) {
+            deferred.reject(event);      
+          };
 
-        return deferred.promise;
+          return deferred.promise;          
+        }
+        return destroyPromise.then(_open);
       };
 
       _session.createObjectStore = function (storeName, optionalParameters) {

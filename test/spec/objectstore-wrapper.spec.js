@@ -11,17 +11,14 @@ describe('ObjectStoreWrapper', function () {
         product.add({ name: 'Python' });
         product.add({ name: 'Ruby' });
         product.add({ name: 'Java' });
-      }      
+      },
+      initializeDatabase: true
     });
   }));
 
   beforeEach(inject(function (_$idb_) {
     $idb = _$idb_;
   }));
-
-  beforeEach(function (done) {
-    $idb.destroy().then(done);
-  });
 
   it('should support "put"', function (done) {
     var session = $idb.session();

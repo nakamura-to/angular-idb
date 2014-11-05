@@ -21,17 +21,14 @@ describe('ObjectStore CursorWrapper', function () {
 		    address.put({ street: 'aaa', city: 'NY'});
         address.put({ street: 'bbb', city: 'TOKYO'});
         address.put({ street: 'aaa', city: 'PARIS'});
-      }
+      },
+      initializeDatabase: true 
     });
   }));
 
   beforeEach(inject(function (_$idb_) {
     $idb = _$idb_;
   }));
-
-  beforeEach(function (done) {
-    $idb.destroy().then(done);
-  });
 
   it('should support properties', function (done) {
     var session = $idb.session();
