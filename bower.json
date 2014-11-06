@@ -5,7 +5,7 @@
     "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>"
   ],
   "description": "IndexedDB wrapper integrated with AngularJS",
-  "main": "dist/angular-idb.js",
+  "main": "src/angular-idb.js",
   "keywords": [
     "angular",
     "angularjs",
