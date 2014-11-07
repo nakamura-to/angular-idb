@@ -73,7 +73,8 @@ module.exports = function(config) {
       'karma-safari-launcher',
       'karma-ie-launcher',
       'karma-notify-reporter',
-      'karma-spec-reporter'
+      'karma-spec-reporter',
+      'karma-junit-reporter'
     ]
 
   });

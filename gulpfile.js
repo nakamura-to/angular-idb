@@ -34,7 +34,7 @@ var karma = require('karma').server;
 gulp.task('karma:unit', function() {
   karma.start({
     configFile: path.join(__dirname, 'test/karma.conf.js'),
-    reporters: ['dots'],
+    reporters: ['dots', 'junit'],
     singleRun: true
   }, function(code) {
     gutil.log('Karma has exited with ' + code);
