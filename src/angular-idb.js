@@ -268,6 +268,17 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
       });
     };
 
+    ObjectStoreWrapper.prototype.last = function () {
+      var value;
+      return this.openCursor(function (cursor) {
+        if (cursor) {
+          value = cursor.value;
+        }
+      }, null, 'prev').then(function () {
+        return value;
+      });
+    };
+
     /**
      * IDBObjectStore Adapter
      */
@@ -370,6 +381,14 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
       var session = idb.session();
       return session.open([storeName], 'readonly').then(function () {
         return session(storeName).first();
+      });
+    };
+
+    ObjectStoreAdapter.prototype.last = function () {
+      var storeName = this.name;
+      var session = idb.session();
+      return session.open([storeName], 'readonly').then(function () {
+        return session(storeName).last();
       });
     };
 

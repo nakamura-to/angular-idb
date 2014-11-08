@@ -129,6 +129,16 @@ describe('ObjectStoreWrapper', function () {
     });
   });
 
+  it('should support "last"', function (done) {
+    var session = $idb.session();
+    session.open(['product']).then(function () {
+      return session('product').last();
+    }).then(function (value) {
+      expect(value).toEqual({ id: 3, name: 'Java' });
+      done();
+    });
+  });
+
   it('should support properties', function (done) {
     var session = $idb.session();
     session.open(['product']).then(function () {

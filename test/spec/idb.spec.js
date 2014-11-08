@@ -137,4 +137,11 @@ describe('$idb', function () {
     });
   });
 
+  it('should support "last"', function (done) {
+    $idb('product').last().then(function (value) {
+      expect(value).toEqual({ id: 3, name: 'Java' });
+      done();
+    });
+  });
+
 });
