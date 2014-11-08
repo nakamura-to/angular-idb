@@ -118,18 +118,6 @@ describe('$idb', function () {
     });
   });
 
-  it('should support "all"', function (done) {
-    $idb('product').all().then(function (values) {
-      expect(values.length).toBe(3);
-      expect(values).toEqual([
-        { id: 1, name: 'Python' },
-        { id: 2, name: 'Ruby' },
-        { id: 3, name: 'Java' }
-      ]);
-      done();
-    });
-  });
-
   it('should support "first"', function (done) {
     $idb('product').first().then(function (value) {
       expect(value).toEqual({ id: 1, name: 'Python' });
@@ -140,6 +128,85 @@ describe('$idb', function () {
   it('should support "last"', function (done) {
     $idb('product').last().then(function (value) {
       expect(value).toEqual({ id: 3, name: 'Java' });
+      done();
+    });
+  });
+
+  it('should support "fetch" without options', function (done) {
+    $idb('product').fetch().then(function (values) {
+      expect(values.length).toBe(3);
+      expect(values).toEqual([
+        { id: 1, name: 'Python' },
+        { id: 2, name: 'Ruby' },
+        { id: 3, name: 'Java' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with offset', function (done) {
+    $idb('product').fetch({ offset: 1 }).then(function (values) {
+      expect(values.length).toBe(2);
+      expect(values).toEqual([
+        { id: 2, name: 'Ruby' },
+        { id: 3, name: 'Java' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with limit', function (done) {
+    $idb('product').fetch({ limit: 2}).then(function (values) {
+      expect(values.length).toBe(2);
+      expect(values).toEqual([
+        { id: 1, name: 'Python' },
+        { id: 2, name: 'Ruby' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with offset and limit', function (done) {
+    $idb('product').fetch({ offset: 1, limit: 1 }).then(function (values) {
+      expect(values.length).toBe(1);
+      expect(values).toEqual([
+        { id: 2, name: 'Ruby' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with next direction', function (done) {
+    $idb('product').fetch({ direction: 'next' }).then(function (values) {
+      expect(values.length).toBe(3);
+      expect(values).toEqual([
+        { id: 1, name: 'Python' },
+        { id: 2, name: 'Ruby' },
+        { id: 3, name: 'Java' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with prev direction', function (done) {
+    $idb('product').fetch({ direction: 'prev' }).then(function (values) {
+      expect(values.length).toBe(3);
+      expect(values).toEqual([
+        { id: 3, name: 'Java' },
+        { id: 2, name: 'Ruby' },
+        { id: 1, name: 'Python' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with range', function (done) {
+    $idb('product').fetch({ range: IDBKeyRange.lowerBound(2) }).then(function (values) {
+      expect(values.length).toBe(2);
+      expect(values).toEqual([
+        { id: 2, name: 'Ruby' },
+        { id: 3, name: 'Java' }
+      ]);
       done();
     });
   });

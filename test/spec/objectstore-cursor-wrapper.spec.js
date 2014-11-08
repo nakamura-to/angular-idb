@@ -59,7 +59,7 @@ describe('ObjectStore CursorWrapper', function () {
         }
       });
     }).then(function () {
-      return session('person').all();
+      return session('person').fetch();
     }).then(function (values) {
       expect(values.length).toBe(6);
       expect(values).toEqual([
@@ -87,7 +87,7 @@ describe('ObjectStore CursorWrapper', function () {
         }
       });
     }).then(function () {
-      return session('person').all();
+      return session('person').fetch();
     }).then(function (values) {
       expect(values.length).toBe(3);
       expect(values).toEqual([

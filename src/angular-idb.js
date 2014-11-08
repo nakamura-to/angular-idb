@@ -245,14 +245,31 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
       return util.promise(req);
     };
 
-    ObjectStoreWrapper.prototype.all = function () {
+    ObjectStoreWrapper.prototype.fetch = function (options) {
+      options = options || { 
+        offset: 0,
+        limit: Number.MAX_VALUE,
+        range: null,
+        direction: null
+      };
+      var offset = parseFloat(options.offset, 10);
+      var limit = parseFloat(options.limit, 10);
+      var lowerBound = isNaN(offset) ? 0 : offset;
+      var upperBound = isNaN(limit) ? Number.MAX_VALUE : lowerBound + limit;
+      upperBound = isNaN(upperBound) ? Number.MAX_VALUE : upperBound;
       var values = [];
+      var count = 0;
       return this.openCursor(function (cursor) {
         if (cursor) {
-          values.push(cursor.value);
-          cursor.continue();
+          if (lowerBound <= count && count <= upperBound) {
+            values.push(cursor.value);
+          }
+          count++;
+          if (count < upperBound) {
+            cursor.continue();
+          }
         }
-      }).then(function () {
+      }, options.range, options.direction).then(function () {
         return values;
       });
     };
@@ -368,11 +385,11 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
       });
     };
 
-    ObjectStoreAdapter.prototype.all = function () {
+    ObjectStoreAdapter.prototype.fetch = function (options) {
       var storeName = this.name;
       var session = idb.session();
       return session.open([storeName], 'readonly').then(function () {
-        return session(storeName).all();
+        return session(storeName).fetch(options);
       });
     };
 

@@ -104,21 +104,6 @@ describe('ObjectStoreWrapper', function () {
     });
   });
 
-  it('should support "all"', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
-      return session('product').all();
-    }).then(function (values) {
-      expect(values.length).toBe(3);
-      expect(values).toEqual([
-        { id: 1, name: 'Python' },
-        { id: 2, name: 'Ruby' },
-        { id: 3, name: 'Java' }
-      ]);
-      done();
-    });
-  });
-
   it('should support "first"', function (done) {
     var session = $idb.session();
     session.open(['product']).then(function () {
@@ -135,6 +120,106 @@ describe('ObjectStoreWrapper', function () {
       return session('product').last();
     }).then(function (value) {
       expect(value).toEqual({ id: 3, name: 'Java' });
+      done();
+    });
+  });
+
+  it('should support "fetch" without options', function (done) {
+    var session = $idb.session();
+    session.open(['product']).then(function () {
+      return session('product').fetch();
+    }).then(function (values) {
+      expect(values.length).toBe(3);
+      expect(values).toEqual([
+        { id: 1, name: 'Python' },
+        { id: 2, name: 'Ruby' },
+        { id: 3, name: 'Java' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with offset', function (done) {
+    var session = $idb.session();
+    session.open(['product']).then(function () {
+      return session('product').fetch({ offset: 1 });
+    }).then(function (values) {
+      expect(values.length).toBe(2);
+      expect(values).toEqual([
+        { id: 2, name: 'Ruby' },
+        { id: 3, name: 'Java' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with limit', function (done) {
+    var session = $idb.session();
+    session.open(['product']).then(function () {
+      return session('product').fetch({ offset: 0, limit: 2 });
+    }).then(function (values) {
+      expect(values.length).toBe(2);
+      expect(values).toEqual([
+        { id: 1, name: 'Python' },
+        { id: 2, name: 'Ruby' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with offset and limit', function (done) {
+    var session = $idb.session();
+    session.open(['product']).then(function () {
+      return session('product').fetch({ offset: 1, limit: 1 });
+    }).then(function (values) {
+      expect(values.length).toBe(1);
+      expect(values).toEqual([
+        { id: 2, name: 'Ruby' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with next direction', function (done) {
+    var session = $idb.session();
+    session.open(['product']).then(function () {
+      return session('product').fetch({ direction: 'next' });
+    }).then(function (values) {
+      expect(values.length).toBe(3);
+      expect(values).toEqual([
+        { id: 1, name: 'Python' },
+        { id: 2, name: 'Ruby' },
+        { id: 3, name: 'Java' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with prev direction', function (done) {
+    var session = $idb.session();
+    session.open(['product']).then(function () {
+      return session('product').fetch({ direction: 'prev' });
+    }).then(function (values) {
+      expect(values.length).toBe(3);
+      expect(values).toEqual([
+        { id: 3, name: 'Java' },
+        { id: 2, name: 'Ruby' },
+        { id: 1, name: 'Python' }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with range', function (done) {
+    var session = $idb.session();
+    session.open(['product']).then(function () {
+      return session('product').fetch({ range: IDBKeyRange.lowerBound(2) });
+    }).then(function (values) {
+      expect(values.length).toBe(2);
+      expect(values).toEqual([
+        { id: 2, name: 'Ruby' },
+        { id: 3, name: 'Java' }
+      ]);
       done();
     });
   });
