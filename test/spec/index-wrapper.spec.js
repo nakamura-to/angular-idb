@@ -97,6 +97,16 @@ describe('IndexWrapper', function () {
     });
   });
 
+  it('should support "last"', function (done) {
+    var session = $idb.session();
+    session.open(['person']).then(function () {
+      return session('person').index('name').last();
+    }).then(function (value) {
+      expect(value).toEqual({ name: 'fff', age: 30 });
+      done();
+    });
+  });
+
   it('should support "fetch" without options', function (done) {
     var session = $idb.session();
     session.open(['person']).then(function () {

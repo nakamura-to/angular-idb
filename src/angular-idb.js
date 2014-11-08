@@ -142,6 +142,17 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
         }).then(function () {
           return value;
         });        
+      },
+
+      last: function (openCursor) {
+        var value;
+        return openCursor(function (cursor) {
+          if (cursor) {
+            value = cursor.value;
+          }
+        }, null, 'prev').then(function () {
+          return value;
+        });        
       }
 
     };
@@ -295,14 +306,7 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
     };
 
     ObjectStoreWrapper.prototype.last = function () {
-      var value;
-      return this.openCursor(function (cursor) {
-        if (cursor) {
-          value = cursor.value;
-        }
-      }, null, 'prev').then(function () {
-        return value;
-      });
+      return util.last(this.openCursor.bind(this));
     };
 
     /**
