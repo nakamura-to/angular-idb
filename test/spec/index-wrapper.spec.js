@@ -87,6 +87,15 @@ describe('IndexWrapper', function () {
     });
   });
 
+  it('should support "first"', function (done) {
+    var session = $idb.session();
+    session.open(['person']).then(function () {
+      return session('person').index('name').first();
+    }).then(function (value) {
+      expect(value).toEqual({ name: 'aaa', age: 10 });
+      done();
+    });
+  });
 
   it('should support "fetch" without options', function (done) {
     var session = $idb.session();

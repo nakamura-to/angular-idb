@@ -131,6 +131,17 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
         }, options.range, options.direction).then(function () {
           return values;
         });
+      },
+
+      first: function (openCursor) {
+        var value;
+        return openCursor(function (cursor) {
+          if (cursor) {
+            value = cursor.value;
+          }
+        }).then(function () {
+          return value;
+        });        
       }
 
     };
@@ -280,14 +291,7 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
     };
 
     ObjectStoreWrapper.prototype.first = function () {
-      var value;
-      return this.openCursor(function (cursor) {
-        if (cursor) {
-          value = cursor.value;
-        }
-      }).then(function () {
-        return value;
-      });
+      return util.first(this.openCursor.bind(this));
     };
 
     ObjectStoreWrapper.prototype.last = function () {
@@ -457,6 +461,28 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
 
     IndexWrapper.prototype.fetch = function (options) {
       return util.fetch(this.openCursor.bind(this), options);
+    };
+
+    IndexWrapper.prototype.first = function () {
+      var value;
+      return this.openCursor(function (cursor) {
+        if (cursor) {
+          value = cursor.value;
+        }
+      }).then(function () {
+        return value;
+      });
+    };
+
+    IndexWrapper.prototype.last = function () {
+      var value;
+      return this.openCursor(function (cursor) {
+        if (cursor) {
+          value = cursor.value;
+        }
+      }, null, 'prev').then(function () {
+        return value;
+      });
     };
 
     /**
