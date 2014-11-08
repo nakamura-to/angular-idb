@@ -1,6 +1,6 @@
 {
   "name": "angular-idb",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "IndexedDB wrapper integrated with AngularJS",
   "main": "index.js",
   "directories": {
