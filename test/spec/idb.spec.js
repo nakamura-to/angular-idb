@@ -130,4 +130,11 @@ describe('$idb', function () {
     });
   });
 
+  it('should support "first"', function (done) {
+    $idb('product').first().then(function (value) {
+      expect(value).toEqual({ id: 1, name: 'Python' });
+      done();
+    });
+  });
+
 });

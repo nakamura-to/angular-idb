@@ -119,6 +119,16 @@ describe('ObjectStoreWrapper', function () {
     });
   });
 
+  it('should support "first"', function (done) {
+    var session = $idb.session();
+    session.open(['product']).then(function () {
+      return session('product').first();
+    }).then(function (value) {
+      expect(value).toEqual({ id: 1, name: 'Python' });
+      done();
+    });
+  });
+
   it('should support properties', function (done) {
     var session = $idb.session();
     session.open(['product']).then(function () {
