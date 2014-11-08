@@ -24,32 +24,32 @@ describe('$idb', function () {
   }));
 
   it('should open database with implicit readonly mode', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       expect(session('product')).toBeDefined();
       done();
     });
   });
 
   it('should open database with explicit readonly mode', function (done) {
-    var session = $idb.session();
-    session.open(['product'], 'readonly').then(function () {
+    var session = $idb.open();
+    session.begin(['product'], 'readonly').then(function () {
       expect(session('product')).toBeDefined();
       done();
     });
   });
 
   it('should open database with explicit readwrite mode', function (done) {
-    var session = $idb.session();
-    session.open(['product'], 'readwrite').then(function () {
+    var session = $idb.open();
+    session.begin(['product'], 'readwrite').then(function () {
       expect(session('product')).toBeDefined();
       done();
     });
   });
 
   it('should destroy database', function (done) {
-    var session = $idb.session();
-    session.open(['product'], 'readwrite').then(function () {
+    var session = $idb.open();
+    session.begin(['product'], 'readwrite').then(function () {
       expect(session('product')).toBeDefined();
       $idb.destroy().then(done);
     });

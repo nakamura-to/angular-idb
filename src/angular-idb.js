@@ -21,26 +21,26 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
     return new ObjectStoreAdapter(storeName);
   };
 
-  idb.session = function () {
-    var _session = function (storeName) {
-      return _session.stores[storeName];
+  idb.open = function () {
+    var session = function (storeName) {
+      return session.stores[storeName];
     };
 
-    _session.open = function(storeNames, mode) {
-      function _open() {
+    session.begin = function(storeNames, mode) {
+      function open() {
         var deferred = helper.$q.defer();
         var req = helper.indexedDB.open(defaults.name, defaults.version);
 
         req.onupgradeneeded = function (event) {
-          _session.db = event.target.result;
-          _session.transaction = event.target.transaction;
-          defaults.onUpgradeNeeded(_session);
+          session.db = event.target.result;
+          session.transaction = event.target.transaction;
+          defaults.onUpgradeNeeded(session);
         };
 
         req.onsuccess = function (event) {
-          var db = _session.db = event.target.result;
-          var transaction = _session.transaction = db.transaction(storeNames, mode || 'readonly');
-          _session.stores = storeNames.reduce(function (acc, name) {
+          var db = session.db = event.target.result;
+          var transaction = session.transaction = db.transaction(storeNames, mode || 'readonly');
+          session.stores = storeNames.reduce(function (acc, name) {
             var store = transaction.objectStore(name);
             acc[name] = new ObjectStoreWrapper(store);
             return acc;
@@ -63,19 +63,19 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
 
         return deferred.promise;          
       }
-      return destroyPromise.then(_open);
+      return destroyPromise.then(open);
     };
 
-    _session.createObjectStore = function (storeName, optionalParameters) {
-      if (_session.db) {
-        var store = _session.db.createObjectStore(storeName, optionalParameters);
+    session.createObjectStore = function (storeName, optionalParameters) {
+      if (session.db) {
+        var store = session.db.createObjectStore(storeName, optionalParameters);
         return new ObjectStoreWrapper(store);
       } else {
         throw new Error('session is not opened.');
       }
     };
 
-    return _session;
+    return session;
   };
 
   idb.destroy = function () {
@@ -163,17 +163,17 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
       },
 
       openCursor: function (delegate, methodName, range, direction) {
-        var _openCursor = delegate[methodName].bind(delegate);
+        var openCursor = delegate[methodName].bind(delegate);
         if (range === null || range === undefined) {
           if (direction === null || direction === undefined) {
-            return _openCursor();
+            return openCursor();
           }
-          return _openCursor(null, direction);
+          return openCursor(null, direction);
         } else {
           if (direction === null || direction === undefined) {
-            return _openCursor(range);
+            return openCursor(range);
           }
-          return _openCursor(range, direction);
+          return openCursor(range, direction);
         }
       },
 
@@ -323,24 +323,24 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
 
   ObjectStoreAdapter.prototype.put = function(value, key) {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readwrite').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readwrite').then(function () {
       return session(storeName).put(value, key);
     });
   };
 
   ObjectStoreAdapter.prototype.add = function(value, key) {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readwrite').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readwrite').then(function () {
       return session(storeName).add(value, key);
     });
   };
 
   ObjectStoreAdapter.prototype.delete = function(key) {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readwrite').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readwrite').then(function () {
       return session(storeName).delete(key);
     });
   };
@@ -349,80 +349,80 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
 
   ObjectStoreAdapter.prototype.get = function(key) {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readonly').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readonly').then(function () {
       return session(storeName).get(key);
     });
   };
 
   ObjectStoreAdapter.prototype.clear = function () {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readwrite').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readwrite').then(function () {
       return session(storeName).clear();
     });
   };
 
   ObjectStoreAdapter.prototype.openCursor = function (callback, range, direction) {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readwrite').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readwrite').then(function () {
       return session(storeName).openCursor(callback, range, direction);
     });
   };
 
   ObjectStoreAdapter.prototype.createIndex = function (name, keyPath, optionalParameters) {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readwrite').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readwrite').then(function () {
       return session(storeName).createIndex(name, keyPath, optionalParameters);
     });
   };
 
   ObjectStoreAdapter.prototype.index = function (name) {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readonly').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readonly').then(function () {
       return session(storeName).index(name);
     });
   };
 
   ObjectStoreAdapter.prototype.deleteIndex = function (name) {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readwrite').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readwrite').then(function () {
       return session(storeName).deleteIndex(name);
     });
   };
 
   ObjectStoreAdapter.prototype.count = function (key) {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readonly').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readonly').then(function () {
       return session(storeName).count(key);
     });
   };
 
   ObjectStoreAdapter.prototype.fetch = function (options) {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readonly').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readonly').then(function () {
       return session(storeName).fetch(options);
     });
   };
 
   ObjectStoreAdapter.prototype.first = function () {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readonly').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readonly').then(function () {
       return session(storeName).first();
     });
   };
 
   ObjectStoreAdapter.prototype.last = function () {
     var storeName = this.name;
-    var session = idb.session();
-    return session.open([storeName], 'readonly').then(function () {
+    var session = idb.open();
+    return session.begin([storeName], 'readonly').then(function () {
       return session(storeName).last();
     });
   };

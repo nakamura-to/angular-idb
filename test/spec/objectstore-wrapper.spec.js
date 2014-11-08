@@ -21,8 +21,8 @@ describe('ObjectStoreWrapper', function () {
   }));
 
   it('should support "put"', function (done) {
-    var session = $idb.session();
-    session.open(['product'], 'readwrite').then(function () {
+    var session = $idb.open();
+    session.begin(['product'], 'readwrite').then(function () {
       return session('product').put({ id: 1, name: 'JavaScript' });
     }).then(function (key) {
       expect(key).toBe(1);
@@ -34,8 +34,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "add"', function (done) {      
-    var session = $idb.session();  
-    session.open(['product'], 'readwrite').then(function () {
+    var session = $idb.open();  
+    session.begin(['product'], 'readwrite').then(function () {
       return session('product').add({ name: 'JavaScript' });
     }).then(function (key) {
       expect(key).toBe(4);
@@ -44,8 +44,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "delete"', function (done) {
-    var session = $idb.session();  
-    session.open(['product'], 'readwrite').then(function () {
+    var session = $idb.open();  
+    session.begin(['product'], 'readwrite').then(function () {
       return session('product').delete(1);
     }).then(function () {
       return session('product').get(1);
@@ -56,8 +56,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "get"', function (done) {
-    var session = $idb.session();  
-    session.open(['product']).then(function () {
+    var session = $idb.open();  
+    session.begin(['product']).then(function () {
       return session('product').get(1);
     }).then(function (value) {
       expect(value).toEqual({ id: 1, name: 'Python' });
@@ -66,8 +66,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "clear"', function (done) {
-    var session = $idb.session();  
-    session.open(['product'], 'readwrite').then(function () {
+    var session = $idb.open();  
+    session.begin(['product'], 'readwrite').then(function () {
       return session('product').clear();
     }).then(function () {
       return session('product').count();
@@ -78,9 +78,9 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "openCursor"', function (done) {
-    var session = $idb.session();
+    var session = $idb.open();
     var keys = [];
-    session.open(['product']).then(function () {
+    session.begin(['product']).then(function () {
       return session('product').openCursor(function (cursor) {
         if (cursor) {
           keys.push(cursor.key);
@@ -95,8 +95,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "count"', function (done) {
-    var session = $idb.session();
-    session.open(['product'], 'readwrite').then(function () {
+    var session = $idb.open();
+    session.begin(['product'], 'readwrite').then(function () {
       return session('product').count();
     }).then(function (num) {
       expect(num).toBe(3);
@@ -105,8 +105,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "first"', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       return session('product').first();
     }).then(function (value) {
       expect(value).toEqual({ id: 1, name: 'Python' });
@@ -115,8 +115,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "last"', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       return session('product').last();
     }).then(function (value) {
       expect(value).toEqual({ id: 3, name: 'Java' });
@@ -125,8 +125,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "fetch" without options', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       return session('product').fetch();
     }).then(function (values) {
       expect(values.length).toBe(3);
@@ -140,8 +140,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "fetch" with offset', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       return session('product').fetch({ offset: 1 });
     }).then(function (values) {
       expect(values.length).toBe(2);
@@ -154,8 +154,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "fetch" with limit', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       return session('product').fetch({ offset: 0, limit: 2 });
     }).then(function (values) {
       expect(values.length).toBe(2);
@@ -168,8 +168,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "fetch" with offset and limit', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       return session('product').fetch({ offset: 1, limit: 1 });
     }).then(function (values) {
       expect(values.length).toBe(1);
@@ -181,8 +181,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "fetch" with next direction', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       return session('product').fetch({ direction: 'next' });
     }).then(function (values) {
       expect(values.length).toBe(3);
@@ -196,8 +196,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "fetch" with prev direction', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       return session('product').fetch({ direction: 'prev' });
     }).then(function (values) {
       expect(values.length).toBe(3);
@@ -211,8 +211,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support "fetch" with range', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       return session('product').fetch({ range: IDBKeyRange.lowerBound(2) });
     }).then(function (values) {
       expect(values.length).toBe(2);
@@ -225,8 +225,8 @@ describe('ObjectStoreWrapper', function () {
   });
 
   it('should support properties', function (done) {
-    var session = $idb.session();
-    session.open(['product']).then(function () {
+    var session = $idb.open();
+    session.begin(['product']).then(function () {
       var store = session('product');
       expect(store.name).toBe('product');
       expect(store.keyPath).toBe('id');

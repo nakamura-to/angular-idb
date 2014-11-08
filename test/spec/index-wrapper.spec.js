@@ -26,9 +26,9 @@ describe('IndexWrapper', function () {
   }));
 
   it('should support "openCursor"', function (done) {
-    var session = $idb.session();
+    var session = $idb.open();
     var values = [];
-    session.open(['person']).then(function () {
+    session.begin(['person']).then(function () {
       return session('person').index('age').openCursor(function (cursor) {
         if (cursor) {
           values.push(cursor.key);
@@ -42,9 +42,9 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "openKeyCursor"', function (done) {
-    var session = $idb.session();
+    var session = $idb.open();
     var values = [];
-    session.open(['person']).then(function () {
+    session.begin(['person']).then(function () {
       return session('person').index('age').openKeyCursor(function (cursor) {
         if (cursor) {        	
           values.push(cursor.key);
@@ -58,8 +58,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "get"', function (done) {
-  	var session = $idb.session();
-    session.open(['person']).then(function () {
+  	var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('age').get(20);
     }).then(function (value) {
       expect(value).toEqual({ name: 'bbb', age: 20 });
@@ -68,8 +68,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "getKey"', function (done) {
-  	var session = $idb.session();
-    session.open(['person']).then(function () {
+  	var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('age').getKey(20);
     }).then(function (key) {
       expect(key).toEqual(3);
@@ -78,8 +78,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "count"', function (done) {
-  	var session = $idb.session();
-    session.open(['person']).then(function () {
+  	var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('age').count(20);
     }).then(function (key) {
       expect(key).toEqual(2);
@@ -88,8 +88,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "first"', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('name').first();
     }).then(function (value) {
       expect(value).toEqual({ name: 'aaa', age: 10 });
@@ -98,8 +98,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "last"', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('name').last();
     }).then(function (value) {
       expect(value).toEqual({ name: 'fff', age: 30 });
@@ -108,8 +108,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "fetch" without options', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('name').fetch();
     }).then(function (values) {
       expect(values.length).toBe(6);
@@ -126,8 +126,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "fetch" with offset', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('name').fetch({ offset: 1 });
     }).then(function (values) {
       expect(values.length).toBe(5);
@@ -143,8 +143,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "fetch" with limit', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('name').fetch({ limit: 2 });
     }).then(function (values) {
       expect(values.length).toBe(2);
@@ -157,8 +157,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "fetch" with offset and limit', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('name').fetch({ offset: 2, limit: 2 });
     }).then(function (values) {
       expect(values.length).toBe(2);
@@ -171,8 +171,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "fetch" with next direction', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('name').fetch({ direction: 'next' });
     }).then(function (values) {
       expect(values.length).toBe(6);
@@ -189,8 +189,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "fetch" with prev direction', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('name').fetch({ direction: 'prev' });
     }).then(function (values) {
       expect(values.length).toBe(6);
@@ -207,8 +207,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support "fetch" with range', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').index('age').fetch({ range: IDBKeyRange.lowerBound(20) });
     }).then(function (values) {
       expect(values.length).toBe(4);
@@ -223,8 +223,8 @@ describe('IndexWrapper', function () {
   });
 
   it('should support perperties', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       var index = session('person').index('age');
       expect(index.name).toBe('age');
       expect(index.objectStore.name).toBe('person');

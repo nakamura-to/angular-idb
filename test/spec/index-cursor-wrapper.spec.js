@@ -33,8 +33,8 @@ describe('Index CursorWrapper', function () {
   describe('openCursor', function () {
 
     it('should support properties', function (done) {
-      var session = $idb.session();
-      session.open(['person']).then(function () {
+      var session = $idb.open();
+      session.begin(['person']).then(function () {
         return session('person').index('age').openCursor(function (cursor) {
           if (cursor) {
             expect(cursor.source).toBeDefined();
@@ -49,8 +49,8 @@ describe('Index CursorWrapper', function () {
     });
  
     it('should support "update"', function (done) {
-      var session = $idb.session();
-      session.open(['person'], 'readwrite').then(function () {
+      var session = $idb.open();
+      session.begin(['person'], 'readwrite').then(function () {
         return session('person').index('age').openCursor(function (cursor) {
           if (cursor) {
             var value = cursor.value;
@@ -77,8 +77,8 @@ describe('Index CursorWrapper', function () {
     });
 
     it('should support "delete"', function (done) {
-      var session = $idb.session();
-      session.open(['person'], 'readwrite').then(function () {
+      var session = $idb.open();
+      session.begin(['person'], 'readwrite').then(function () {
         return session('person').index('age').openCursor(function (cursor) {
           if (cursor) {
             var value = cursor.value;
@@ -102,9 +102,9 @@ describe('Index CursorWrapper', function () {
     });
 
     it('should support "next" direction', function (done) {
-      var session = $idb.session();
+      var session = $idb.open();
       var values = [];
-      session.open(['address']).then(function () {
+      session.begin(['address']).then(function () {
         return session('address').index('street').openCursor(function (cursor) {
           if (cursor) {
             values.push(cursor.value);
@@ -123,9 +123,9 @@ describe('Index CursorWrapper', function () {
     });
 
     it('should support "nextunique" direction', function (done) {
-      var session = $idb.session();
+      var session = $idb.open();
       var values = [];
-      session.open(['address']).then(function () {
+      session.begin(['address']).then(function () {
         return session('address').index('street').openCursor(function (cursor) {
           if (cursor) {
             values.push(cursor.value);
@@ -143,9 +143,9 @@ describe('Index CursorWrapper', function () {
     });
 
     it('should support "prev" direction', function (done) {
-      var session = $idb.session();
+      var session = $idb.open();
       var values = [];
-      session.open(['address']).then(function () {
+      session.begin(['address']).then(function () {
         return session('address').index('street').openCursor(function (cursor) {
           if (cursor) {
             values.push(cursor.value);
@@ -164,9 +164,9 @@ describe('Index CursorWrapper', function () {
     });
 
     it('should support "prevunique" direction', function (done) {
-      var session = $idb.session();
+      var session = $idb.open();
       var values = [];
-      session.open(['address']).then(function () {
+      session.begin(['address']).then(function () {
         return session('address').index('street').openCursor(function (cursor) {
           if (cursor) {
             values.push(cursor.value);
@@ -184,9 +184,9 @@ describe('Index CursorWrapper', function () {
     });
 
     it('should support "advance"', function (done) {
-      var session = $idb.session();
+      var session = $idb.open();
       var values = [];
-      session.open(['address']).then(function () {
+      session.begin(['address']).then(function () {
         return session('address').index('street').openCursor(function (cursor) {
           if (cursor) {
             values.push(cursor.value);
@@ -204,9 +204,9 @@ describe('Index CursorWrapper', function () {
     });
 
     it('should support "openCursor" with IDBKeyRange', function (done) {
-      var session = $idb.session();
+      var session = $idb.open();
       var values = [];
-      session.open(['address']).then(function () {
+      session.begin(['address']).then(function () {
         return session('address').index('street').openCursor(function (cursor) {
           if (cursor) {
             values.push(cursor.value);
@@ -228,9 +228,9 @@ describe('Index CursorWrapper', function () {
   describe('openKeyCursor', function () {
 
     it('should support properties', function (done) {
-      var session = $idb.session();
+      var session = $idb.open();
       var props;
-      session.open(['person']).then(function () {
+      session.begin(['person']).then(function () {
         return session('person').index('age').openKeyCursor(function (cursor) {
           if (cursor) {
             props = {
@@ -254,8 +254,8 @@ describe('Index CursorWrapper', function () {
     });
  
     it('should support "delete"', function (done) {
-      var session = $idb.session();
-      session.open(['person'], 'readwrite').then(function () {
+      var session = $idb.open();
+      session.begin(['person'], 'readwrite').then(function () {
         return session('person').index('age').openCursor(function (cursor) {
           if (cursor) {
             var key = cursor.key;

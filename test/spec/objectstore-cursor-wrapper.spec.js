@@ -31,8 +31,8 @@ describe('ObjectStore CursorWrapper', function () {
   }));
 
   it('should support properties', function (done) {
-    var session = $idb.session();
-    session.open(['person']).then(function () {
+    var session = $idb.open();
+    session.begin(['person']).then(function () {
       return session('person').openCursor(function (cursor) {
         if (cursor) {
           expect(cursor.source).toBeDefined();
@@ -47,8 +47,8 @@ describe('ObjectStore CursorWrapper', function () {
   });
 
   it('should support "update"', function (done) {
-    var session = $idb.session();
-    session.open(['person'], 'readwrite').then(function () {
+    var session = $idb.open();
+    session.begin(['person'], 'readwrite').then(function () {
       return session('person').openCursor(function (cursor) {
         if (cursor) {
           var value = cursor.value;
@@ -75,8 +75,8 @@ describe('ObjectStore CursorWrapper', function () {
   });
 
   it('should support "delete"', function (done) {
-    var session = $idb.session();
-    session.open(['person'], 'readwrite').then(function () {
+    var session = $idb.open();
+    session.begin(['person'], 'readwrite').then(function () {
       return session('person').openCursor(function (cursor) {
         if (cursor) {
           var value = cursor.value;
@@ -100,9 +100,9 @@ describe('ObjectStore CursorWrapper', function () {
   });
 
   it('should support "next" direction', function (done) {
-    var session = $idb.session();
+    var session = $idb.open();
     var values = [];
-    session.open(['address']).then(function () {
+    session.begin(['address']).then(function () {
       return session('address').openCursor(function (cursor) {
         if (cursor) {
           values.push(cursor.value);
@@ -121,9 +121,9 @@ describe('ObjectStore CursorWrapper', function () {
   });
 
   it('should support "nextunique" direction', function (done) {
-    var session = $idb.session();
+    var session = $idb.open();
     var values = [];
-    session.open(['address']).then(function () {
+    session.begin(['address']).then(function () {
       return session('address').openCursor(function (cursor) {
         if (cursor) {
           values.push(cursor.value);
@@ -142,9 +142,9 @@ describe('ObjectStore CursorWrapper', function () {
   });
 
   it('should support "prev" direction', function (done) {
-    var session = $idb.session();
+    var session = $idb.open();
     var values = [];
-    session.open(['address']).then(function () {
+    session.begin(['address']).then(function () {
       return session('address').openCursor(function (cursor) {
         if (cursor) {
           values.push(cursor.value);
@@ -163,9 +163,9 @@ describe('ObjectStore CursorWrapper', function () {
   });
 
   it('should support "prevunique" direction', function (done) {
-    var session = $idb.session();
+    var session = $idb.open();
     var values = [];
-    session.open(['address']).then(function () {
+    session.begin(['address']).then(function () {
       return session('address').openCursor(function (cursor) {
         if (cursor) {
           values.push(cursor.value);
@@ -184,9 +184,9 @@ describe('ObjectStore CursorWrapper', function () {
   });
 
   it('should support "advance"', function (done) {
-    var session = $idb.session();
+    var session = $idb.open();
     var values = [];
-    session.open(['address']).then(function () {
+    session.begin(['address']).then(function () {
       return session('address').openCursor(function (cursor) {
         if (cursor) {
           values.push(cursor.value);
@@ -204,9 +204,9 @@ describe('ObjectStore CursorWrapper', function () {
   });
 
   it('should support "openCursor" with IDBKeyRange', function (done) {
-    var session = $idb.session();
+    var session = $idb.open();
     var values = [];
-    session.open(['address']).then(function () {
+    session.begin(['address']).then(function () {
       return session('address').openCursor(function (cursor) {
         if (cursor) {
           values.push(cursor.value);
