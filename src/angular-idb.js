@@ -1,6 +1,13 @@
-'use strict';
-
+/**
+ * angular-idb
+ * https://github.com/nakamura-to/angular-idb
+ *
+ * (c) 2014 Toshihiro Nakamura
+ * License: MIT
+ */
 angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
+
+  'use strict';
 
   var defaults = this.defaults = {
     name: 'angular-idb',
