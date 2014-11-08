@@ -87,6 +87,122 @@ describe('IndexWrapper', function () {
     });
   });
 
+
+  it('should support "fetch" without options', function (done) {
+    var session = $idb.session();
+    session.open(['person']).then(function () {
+      return session('person').index('name').fetch();
+    }).then(function (values) {
+      expect(values.length).toBe(6);
+      expect(values).toEqual([
+        { name: 'aaa', age: 10 },
+        { name: 'bbb', age: 20 },
+        { name: 'ccc', age: 30 },
+        { name: 'ddd', age: 10 },
+        { name: 'eee', age: 20 },
+        { name: 'fff', age: 30 }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with offset', function (done) {
+    var session = $idb.session();
+    session.open(['person']).then(function () {
+      return session('person').index('name').fetch({ offset: 1 });
+    }).then(function (values) {
+      expect(values.length).toBe(5);
+      expect(values).toEqual([
+        { name: 'bbb', age: 20 },
+        { name: 'ccc', age: 30 },
+        { name: 'ddd', age: 10 },
+        { name: 'eee', age: 20 },
+        { name: 'fff', age: 30 }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with limit', function (done) {
+    var session = $idb.session();
+    session.open(['person']).then(function () {
+      return session('person').index('name').fetch({ limit: 2 });
+    }).then(function (values) {
+      expect(values.length).toBe(2);
+      expect(values).toEqual([
+        { name: 'aaa', age: 10 },
+        { name: 'bbb', age: 20 }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with offset and limit', function (done) {
+    var session = $idb.session();
+    session.open(['person']).then(function () {
+      return session('person').index('name').fetch({ offset: 2, limit: 2 });
+    }).then(function (values) {
+      expect(values.length).toBe(2);
+      expect(values).toEqual([
+        { name: 'ccc', age: 30 },
+        { name: 'ddd', age: 10 }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with next direction', function (done) {
+    var session = $idb.session();
+    session.open(['person']).then(function () {
+      return session('person').index('name').fetch({ direction: 'next' });
+    }).then(function (values) {
+      expect(values.length).toBe(6);
+      expect(values).toEqual([
+        { name: 'aaa', age: 10 },
+        { name: 'bbb', age: 20 },
+        { name: 'ccc', age: 30 },
+        { name: 'ddd', age: 10 },
+        { name: 'eee', age: 20 },
+        { name: 'fff', age: 30 }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with prev direction', function (done) {
+    var session = $idb.session();
+    session.open(['person']).then(function () {
+      return session('person').index('name').fetch({ direction: 'prev' });
+    }).then(function (values) {
+      expect(values.length).toBe(6);
+      expect(values).toEqual([
+        { name: 'fff', age: 30 },
+        { name: 'eee', age: 20 },
+        { name: 'ddd', age: 10 },
+        { name: 'ccc', age: 30 },
+        { name: 'bbb', age: 20 },
+        { name: 'aaa', age: 10 }
+      ]);
+      done();
+    });
+  });
+
+  it('should support "fetch" with range', function (done) {
+    var session = $idb.session();
+    session.open(['person']).then(function () {
+      return session('person').index('age').fetch({ range: IDBKeyRange.lowerBound(20) });
+    }).then(function (values) {
+      expect(values.length).toBe(4);
+      expect(values).toEqual([
+        { name: 'bbb', age: 20 },
+        { name: 'eee', age: 20 },
+        { name: 'ccc', age: 30 },
+        { name: 'fff', age: 30 }
+      ]);
+      done();
+    });
+  });
+
   it('should support perperties', function (done) {
     var session = $idb.session();
     session.open(['person']).then(function () {

@@ -102,7 +102,37 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
           }
           return _openCursor(range, direction);
         }
+      },
+
+      fetch: function(openCursor, options) {
+        options = options || { 
+          offset: 0,
+          limit: Number.MAX_VALUE,
+          range: null,
+          direction: null
+        };
+        var offset = parseFloat(options.offset, 10);
+        var limit = parseFloat(options.limit, 10);
+        var lowerBound = isNaN(offset) ? 0 : offset;
+        var upperBound = isNaN(limit) ? Number.MAX_VALUE : lowerBound + limit;
+        upperBound = isNaN(upperBound) ? Number.MAX_VALUE : upperBound;
+        var values = [];
+        var count = 0;
+        return openCursor(function (cursor) {
+          if (cursor) {
+            if (lowerBound <= count && count <= upperBound) {
+              values.push(cursor.value);
+            }
+            count++;
+            if (count < upperBound) {
+              cursor.continue();
+            }
+          }
+        }, options.range, options.direction).then(function () {
+          return values;
+        });
       }
+
     };
 
     /**
@@ -246,32 +276,7 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
     };
 
     ObjectStoreWrapper.prototype.fetch = function (options) {
-      options = options || { 
-        offset: 0,
-        limit: Number.MAX_VALUE,
-        range: null,
-        direction: null
-      };
-      var offset = parseFloat(options.offset, 10);
-      var limit = parseFloat(options.limit, 10);
-      var lowerBound = isNaN(offset) ? 0 : offset;
-      var upperBound = isNaN(limit) ? Number.MAX_VALUE : lowerBound + limit;
-      upperBound = isNaN(upperBound) ? Number.MAX_VALUE : upperBound;
-      var values = [];
-      var count = 0;
-      return this.openCursor(function (cursor) {
-        if (cursor) {
-          if (lowerBound <= count && count <= upperBound) {
-            values.push(cursor.value);
-          }
-          count++;
-          if (count < upperBound) {
-            cursor.continue();
-          }
-        }
-      }, options.range, options.direction).then(function () {
-        return values;
-      });
+      return util.fetch(this.openCursor.bind(this), options);
     };
 
     ObjectStoreWrapper.prototype.first = function () {
@@ -448,6 +453,10 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
         this.delegate.count():
         this.delegate.count(key);
       return util.promise(req);
+    };
+
+    IndexWrapper.prototype.fetch = function (options) {
+      return util.fetch(this.openCursor.bind(this), options);
     };
 
     /**
