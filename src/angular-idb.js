@@ -195,7 +195,6 @@ angular.module('nakamura-to.angular-idb', []).provider('$idb', function () {
         var limit = parseFloat(options.limit, 10);
         var lowerBound = isNaN(offset) ? 0 : offset;
         var upperBound = isNaN(limit) ? Number.MAX_VALUE : lowerBound + limit;
-        upperBound = isNaN(upperBound) ? Number.MAX_VALUE : upperBound;
         var values = [];
         var count = 0;
         return openCursor(function (cursor) {
